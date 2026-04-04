@@ -3,6 +3,15 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* LUX Derma Design Tokens */
+  --color-primary: #f43f5e;       /* rose-500 */
+  --color-secondary: #334155;    /* slate-700 */
+  --color-accent: #f59e0b;       /* amber-500 */
+  --color-success: #10b981;      /* emerald-500 */
+  --color-danger: #ef4444;        /* red-500 */
+  --color-text: #1e293b;          /* slate-800 */
+  --color-text-muted: #64748b;    /* slate-500 */
 }
 
 @theme inline {
@@ -24,3 +33,9 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Utility classes using design tokens */
+.text-primary { color: var(--color-primary); }
+.text-secondary { color: var(--color-secondary); }
+.text-accent { color: var(--color-accent); }
+.bg-primary { background-color: var(--color-primary); }
