@@ -1,0 +1,181 @@
+▲ Next.js 16.2.2 (Turbopack)
+- Local:         http://localhost:3001
+- Network:       http://192.168.8.133:3001
+- Environments: .env
+✓ Ready in 315ms
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /Users/PHUC/package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * /Users/PHUC/antigravity/package-lock.json
+
+
+ GET /login 200 in 2.0s (next.js: 1903ms, application-code: 139ms)
+ GET / 200 in 241ms (next.js: 200ms, application-code: 40ms)
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="en" className="geist_a715...">
+                          <body
++                           className="min-h-full flex flex-col"
+-                           className="min-h-full flex flex-col highlighter-context"
+                          >
+                  ...
+ 
+ GET /api/auth/session 200 in 922ms (next.js: 904ms, application-code: 17ms)
+ GET /consultation 200 in 257ms (next.js: 241ms, application-code: 16ms)
+ GET /products 200 in 267ms (next.js: 250ms, application-code: 17ms)
+prisma:query SELECT `main`.`Product`.`id`, `main`.`Product`.`name`, `main`.`Product`.`description`, `main`.`Product`.`price`, `main`.`Product`.`imageUrl`, `main`.`Product`.`categoryId`, `main`.`Product`.`createdAt`, `main`.`Product`.`updatedAt` FROM `main`.`Product` WHERE 1=1 LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Product`.`id`, `main`.`Product`.`name`, `main`.`Product`.`description`, `main`.`Product`.`price`, `main`.`Product`.`imageUrl`, `main`.`Product`.`categoryId`, `main`.`Product`.`createdAt`, `main`.`Product`.`updatedAt` FROM `main`.`Product` WHERE 1=1 LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Category`.`id`, `main`.`Category`.`name`, `main`.`Category`.`slug` FROM `main`.`Category` WHERE `main`.`Category`.`id` IN (?,?) LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Category`.`id`, `main`.`Category`.`name`, `main`.`Category`.`slug` FROM `main`.`Category` WHERE `main`.`Category`.`id` IN (?,?) LIMIT ? OFFSET ?
+ GET /api/products 200 in 86ms (next.js: 67ms, application-code: 20ms)
+ GET /api/products 200 in 93ms (next.js: 77ms, application-code: 16ms)
+[browser] Image with src "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&w=800&q=80" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+⨯ upstream image response failed for https://images.unsplash.com/photo-1556228720-192a602430ce?auto=format&fit=crop&w=800&q=80 404
+ GET /checkout 200 in 196ms (next.js: 181ms, application-code: 15ms)
+ GET /api/products 200 in 10ms (next.js: 5ms, application-code: 5ms)
+prisma:query SELECT `main`.`Product`.`id`, `main`.`Product`.`name`, `main`.`Product`.`description`, `main`.`Product`.`price`, `main`.`Product`.`imageUrl`, `main`.`Product`.`categoryId`, `main`.`Product`.`createdAt`, `main`.`Product`.`updatedAt` FROM `main`.`Product` WHERE 1=1 LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Category`.`id`, `main`.`Category`.`name`, `main`.`Category`.`slug` FROM `main`.`Category` WHERE `main`.`Category`.`id` IN (?,?) LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Product`.`id`, `main`.`Product`.`name`, `main`.`Product`.`description`, `main`.`Product`.`price`, `main`.`Product`.`imageUrl`, `main`.`Product`.`categoryId`, `main`.`Product`.`createdAt`, `main`.`Product`.`updatedAt` FROM `main`.`Product` WHERE 1=1 LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Category`.`id`, `main`.`Category`.`name`, `main`.`Category`.`slug` FROM `main`.`Category` WHERE `main`.`Category`.`id` IN (?,?) LIMIT ? OFFSET ?
+ GET /api/products 200 in 13ms (next.js: 9ms, application-code: 4ms)
+⨯ upstream image response failed for https://images.unsplash.com/photo-1556228720-192a602430ce?auto=format&fit=crop&w=800&q=80 404
+ GET / 200 in 29ms (next.js: 3ms, application-code: 27ms)
+ GET /api/auth/session 200 in 20ms (next.js: 7ms, application-code: 13ms)
+ GET / 200 in 32ms (next.js: 3ms, application-code: 29ms)
+ GET /api/auth/session 200 in 9ms (next.js: 3ms, application-code: 6ms)
+ GET /consultation 200 in 19ms (next.js: 7ms, application-code: 12ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Doctor`.`id`, `main`.`Doctor`.`name`, `main`.`Doctor`.`specialty`, `main`.`Doctor`.`avatarUrl`, `main`.`Doctor`.`rating`, `main`.`Doctor`.`experienceYr` FROM `main`.`Doctor` WHERE 1=1 LIMIT ? OFFSET ?
+prisma:query BEGIN IMMEDIATE
+prisma:query INSERT INTO `main`.`ConsultationTicket` (`id`, `userId`, `doctorId`, `skinIssue`, `status`, `createdAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?) RETURNING `id` AS `id`
+prisma:query ROLLBACK
+Error [PrismaClientKnownRequestError]: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$antigravity$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].consultationTicket.create()` invocation in
+/Users/PHUC/antigravity/.next/dev/server/chunks/[root-of-the-server]__12a1a8n._.js:107:186
+
+  104 const { skinIssue, imageUrl, userId } = body;
+  105 // Lấy một Doctor ngẫu nhiên để gán vào ticket cho nhanh trong bản demo
+  106 const firstDoctor = await __TURBOPACK__imported__module__$5b$project$5d2f$antigravity$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].doctor.findFirst();
+→ 107 const ticket = await __TURBOPACK__imported__module__$5b$project$5d2f$antigravity$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].consultationTicket.create(
+Foreign key constraint violated: `foreign key`
+    at <unknown> (app/api/consultation/route.ts:28:52)
+    at async POST (app/api/consultation/route.ts:28:20)
+  26 |     const firstDoctor = await prisma.doctor.findFirst();
+  27 |
+> 28 |     const ticket = await prisma.consultationTicket.create({
+     |                                                    ^
+  29 |       data: {
+  30 |         skinIssue,
+  31 |         imageUrl, {
+  code: 'P2003',
+  clientVersion: '6.3.1',
+  meta: { modelName: 'ConsultationTicket', field_name: 'foreign key' }
+}
+ POST /api/consultation 500 in 173ms (next.js: 63ms, application-code: 110ms)
+prisma:query SELECT `main`.`Doctor`.`id`, `main`.`Doctor`.`name`, `main`.`Doctor`.`specialty`, `main`.`Doctor`.`avatarUrl`, `main`.`Doctor`.`rating`, `main`.`Doctor`.`experienceYr` FROM `main`.`Doctor` WHERE 1=1 LIMIT ? OFFSET ?
+prisma:query BEGIN IMMEDIATE
+prisma:query INSERT INTO `main`.`ConsultationTicket` (`id`, `userId`, `doctorId`, `skinIssue`, `status`, `createdAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?) RETURNING `id` AS `id`
+Error [PrismaClientKnownRequestError]: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$antigravity$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].consultationTicket.create()` invocation in
+/Users/PHUC/antigravity/.next/dev/server/chunks/[root-of-the-server]__12a1a8n._.js:107:186
+
+  104 const { skinIssue, imageUrl, userId } = body;
+  105 // Lấy một Doctor ngẫu nhiên để gán vào ticket cho nhanh trong bản demo
+  106 const firstDoctor = await __TURBOPACK__imported__module__$5b$project$5d2f$antigravity$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].doctor.findFirst();
+→ 107 const ticket = await __TURBOPACK__imported__module__$5b$project$5d2f$antigravity$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].consultationTicket.create(
+Foreign key constraint violated: `foreign key`
+    at <unknown> (app/api/consultation/route.ts:28:52)
+    at async POST (app/api/consultation/route.ts:28:20)
+  26 |     const firstDoctor = await prisma.doctor.findFirst();
+  27 |
+> 28 |     const ticket = await prisma.consultationTicket.create({
+     |                                                    ^
+  29 |       data: {
+  30 |         skinIssue,
+  31 |         imageUrl, {
+  code: 'P2003',
+  clientVersion: '6.3.1',
+  meta: { modelName: 'ConsultationTicket', field_name: 'foreign key' }
+}
+ POST /api/consultation 500 in 65ms (next.js: 3ms, application-code: 62ms)
+prisma:query ROLLBACK
+prisma:query SELECT `main`.`Doctor`.`id`, `main`.`Doctor`.`name`, `main`.`Doctor`.`specialty`, `main`.`Doctor`.`avatarUrl`, `main`.`Doctor`.`rating`, `main`.`Doctor`.`experienceYr` FROM `main`.`Doctor` WHERE 1=1 LIMIT ? OFFSET ?
+prisma:query BEGIN IMMEDIATE
+prisma:query INSERT INTO `main`.`ConsultationTicket` (`id`, `userId`, `doctorId`, `skinIssue`, `status`, `createdAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?) RETURNING `id` AS `id`
+prisma:query ROLLBACK
+Error [PrismaClientKnownRequestError]: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$antigravity$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].consultationTicket.create()` invocation in
+/Users/PHUC/antigravity/.next/dev/server/chunks/[root-of-the-server]__12a1a8n._.js:107:186
+
+  104 const { skinIssue, imageUrl, userId } = body;
+  105 // Lấy một Doctor ngẫu nhiên để gán vào ticket cho nhanh trong bản demo
+  106 const firstDoctor = await __TURBOPACK__imported__module__$5b$project$5d2f$antigravity$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].doctor.findFirst();
+→ 107 const ticket = await __TURBOPACK__imported__module__$5b$project$5d2f$antigravity$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].consultationTicket.create(
+Foreign key constraint violated: `foreign key`
+    at <unknown> (app/api/consultation/route.ts:28:52)
+    at async POST (app/api/consultation/route.ts:28:20)
+  26 |     const firstDoctor = await prisma.doctor.findFirst();
+  27 |
+> 28 |     const ticket = await prisma.consultationTicket.create({
+     |                                                    ^
+  29 |       data: {
+  30 |         skinIssue,
+  31 |         imageUrl, {
+  code: 'P2003',
+  clientVersion: '6.3.1',
+  meta: { modelName: 'ConsultationTicket', field_name: 'foreign key' }
+}
+ POST /api/consultation 500 in 57ms (next.js: 1648µs, application-code: 56ms)
+ GET /products 200 in 19ms (next.js: 5ms, application-code: 14ms)
+ GET /api/products 200 in 14ms (next.js: 1369µs, application-code: 12ms)
+prisma:query SELECT `main`.`Product`.`id`, `main`.`Product`.`name`, `main`.`Product`.`description`, `main`.`Product`.`price`, `main`.`Product`.`imageUrl`, `main`.`Product`.`categoryId`, `main`.`Product`.`createdAt`, `main`.`Product`.`updatedAt` FROM `main`.`Product` WHERE 1=1 LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Category`.`id`, `main`.`Category`.`name`, `main`.`Category`.`slug` FROM `main`.`Category` WHERE `main`.`Category`.`id` IN (?,?) LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Product`.`id`, `main`.`Product`.`name`, `main`.`Product`.`description`, `main`.`Product`.`price`, `main`.`Product`.`imageUrl`, `main`.`Product`.`categoryId`, `main`.`Product`.`createdAt`, `main`.`Product`.`updatedAt` FROM `main`.`Product` WHERE 1=1 LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Category`.`id`, `main`.`Category`.`name`, `main`.`Category`.`slug` FROM `main`.`Category` WHERE `main`.`Category`.`id` IN (?,?) LIMIT ? OFFSET ?
+ GET /api/products 200 in 19ms (next.js: 11ms, application-code: 8ms)
+[browser] Image with src "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&w=800&q=80" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+⨯ upstream image response failed for https://images.unsplash.com/photo-1556228720-192a602430ce?auto=format&fit=crop&w=800&q=80 404
+ GET /checkout 200 in 23ms (next.js: 10ms, application-code: 13ms)
+ GET /products 200 in 59ms (next.js: 5ms, application-code: 54ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Product`.`id`, `main`.`Product`.`name`, `main`.`Product`.`description`, `main`.`Product`.`price`, `main`.`Product`.`imageUrl`, `main`.`Product`.`categoryId`, `main`.`Product`.`createdAt`, `main`.`Product`.`updatedAt` FROM `main`.`Product` WHERE 1=1 LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Category`.`id`, `main`.`Category`.`name`, `main`.`Category`.`slug` FROM `main`.`Category` WHERE `main`.`Category`.`id` IN (?,?) LIMIT ? OFFSET ?
+ GET /api/products 200 in 6ms (next.js: 1789µs, application-code: 4ms)
+ GET /api/auth/session 200 in 11ms (next.js: 4ms, application-code: 7ms)
+[browser] Image with src "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&w=800&q=80" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+⨯ upstream image response failed for https://images.unsplash.com/photo-1556228720-192a602430ce?auto=format&fit=crop&w=800&q=80 404
+ GET / 200 in 11ms (next.js: 2ms, application-code: 9ms)
+[?25h
