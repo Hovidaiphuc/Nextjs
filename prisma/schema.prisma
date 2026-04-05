@@ -7,20 +7,28 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ── Auth Users ──────────────────────────────────────────────────────────────
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  password  String?  // Chứa mã băm bcrypt
-  role      String   @default("USER") // USER, DOCTOR, ADMIN
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  tickets   ConsultationTicket[]
-  orders    Order[]
-  reviews   Review[]
-  blogs     BlogArticle[]
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  password      String?
+  role          String    @default("USER") // USER, DOCTOR, ADMIN
+  phone         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  tickets       ConsultationTicket[]
+  orders        Order[]
+  reviews       Review[]
+  blogs         BlogArticle[]
+  cart          Cart?
+  addresses     Address[]
+  wishlists     Wishlist[]
+  notifications Notification[]
+  voucherUsages VoucherUsage[]
 }
 
+// ── Product Categories ──────────────────────────────────────────────────────
 model Category {
   id        String    @id @default(cuid())
   name      String
@@ -28,25 +36,74 @@ model Category {
   products  Product[]
 }
 
+// ── Products ────────────────────────────────────────────────────────────────
 model Product {
-  id          String   @id @default(cuid())
+  id          String          @id @default(cuid())
   name        String
   description String
-  price       Float
+  price       Float           @default(0) // fallback; use variants for real pricing
   imageUrl    String?
-  stock       Int      @default(0)
+  stock       Int             @default(0)  // aggregate fallback
   brand       String?
   skinType    String?
   ingredients String?
   categoryId  String
-  category    Category @relation(fields: [categoryId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  category    Category        @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  variants    ProductVariant[]
+  images      ProductImage[]
   orderItems  OrderItem[]
   prescripts  Prescription[]
   reviews     Review[]
+  wishlists   Wishlist[]
 }
 
+// ── Product Variants (size / color / scent) ─────────────────────────────────
+model ProductVariant {
+  id        String   @id @default(cuid())
+  sku       String   @unique
+  name      String   // e.g. "30ml", "Đỏ 01", "Hương Rose"
+  price     Float
+  stock     Int      @default(0)
+  imageUrl  String?
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+  cartItems  CartItem[]
+  @@index([productId])
+}
+
+// ── Product Image Gallery ──────────────────────────────────────────────────
+model ProductImage {
+  id        String  @id @default(cuid())
+  url       String
+  isPrimary Boolean @default(false)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  @@index([productId])
+}
+
+// ── Persistent Cart (server-side) ──────────────────────────────────────────
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String     @unique
+  user      User       @relation(fields: [userId], references: [id])
+  items     CartItem[]
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id        String         @id @default(cuid())
+  cartId    String
+  cart      Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  variantId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+  quantity  Int            @default(1)
+  @@unique([cartId, variantId])
+}
+
+// ── Doctor Profiles ────────────────────────────────────────────────────────
 model Doctor {
   id           String   @id @default(cuid())
   name         String
@@ -57,6 +114,7 @@ model Doctor {
   tickets      ConsultationTicket[]
 }
 
+// ── Consultation Tickets ────────────────────────────────────────────────────
 model ConsultationTicket {
   id          String   @id @default(cuid())
   userId      String
@@ -69,42 +127,137 @@ model ConsultationTicket {
   response    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  prescription Prescription? // Bác sĩ đính kèm đơn thuốc
+  prescription Prescription?
 }
 
+// ── Prescriptions ──────────────────────────────────────────────────────────
 model Prescription {
   id          String   @id @default(cuid())
   ticketId    String   @unique
-  ticket      ConsultationTicket  @relation(fields: [ticketId], references: [id])
-  notes       String   // Lời dặn y khoa
+  ticket      ConsultationTicket @relation(fields: [ticketId], references: [id])
+  notes       String
   products    Product[] // Danh sách ID Mỹ phẩm khuyên dùng
   createdAt   DateTime @default(now())
 }
 
-model Order {
-  id          String   @id @default(cuid())
-  userId      String?  
-  user        User?    @relation(fields: [userId], references: [id])
-  customerName String
-  customerEmail String
-  address     String
-  status      String   @default("PENDING") // PENDING, PROCESSING, COMPLETED
-  totalAmount Float
-  items       OrderItem[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+// ── User Address Book ───────────────────────────────────────────────────────
+model Address {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  name      String   // Tên người nhận
+  phone     String
+  province  String
+  district  String
+  ward      String
+  detail    String   // Địa chỉ chi tiết (số nhà, đường)
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  orders    Order[]
+  @@index([userId])
 }
 
+// ── Vouchers ───────────────────────────────────────────────────────────────
+model Voucher {
+  id                    String        @id @default(cuid())
+  code                  String        @unique
+  type                  String        @default("PERCENT") // PERCENT | FIXED
+  value                 Float
+  minOrderAmount        Float         @default(0)
+  maxDiscount           Float?
+  usageLimit            Int?
+  perUserLimit          Int           @default(1)
+  expiryDate            DateTime?
+  applicableCategories  String?       // comma-separated category IDs or null = all
+  isActive              Boolean       @default(true)
+  createdAt             DateTime      @default(now())
+  usages                VoucherUsage[]
+  orders                Order[]
+}
+
+model VoucherUsage {
+  id        String  @id @default(cuid())
+  voucherId String
+  voucher   Voucher @relation(fields: [voucherId], references: [id])
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
+  orderId   String
+  @@unique([voucherId, userId, orderId])
+}
+
+// ── Orders ──────────────────────────────────────────────────────────────────
+model Order {
+  id              String          @id @default(cuid())
+  userId          String?
+  user            User?           @relation(fields: [userId], references: [id])
+  customerName    String
+  customerEmail   String
+  address         String?         // fallback for guest or legacy
+  status          String          @default("PENDING")
+                  // PENDING | CONFIRMED | PROCESSING | SHIPPED | DELIVERED | CANCELLED | REFUNDED
+  totalAmount     Float
+  items           OrderItem[]
+  // Shipping
+  shippingMethod  String?         // STANDARD | EXPRESS | FREE
+  shippingFee     Float           @default(0)
+  trackingNumber String?
+  note            String?
+  // Payment
+  paymentMethod   String          // COD | BANK_TRANSFER
+  paymentStatus   String          @default("UNPAID") // UNPAID | PAID | FAILED
+  bankRef         String?         // Mã chuyển khoản ngân hàng
+  // Discount
+  discountAmount  Float           @default(0)
+  voucherId       String?
+  voucher         Voucher?        @relation(fields: [voucherId], references: [id])
+  // Address
+  addressId       String?
+  addresses       Address?        @relation(fields: [addressId], references: [id])
+  // Logs
+  orderStatusLogs OrderStatusLog[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  @@index([userId])
+  @@index([status])
+}
+
+// ── Order Items ─────────────────────────────────────────────────────────────
 model OrderItem {
   id        String   @id @default(cuid())
   orderId   String
   order     Order    @relation(fields: [orderId], references: [id])
   productId String
   product   Product  @relation(fields: [productId], references: [id])
+  variantId String?
+  variant   ProductVariant? @relation(fields: [variantId], references: [id])
+  variantName String? // snapshot variant name
   quantity  Int      @default(1)
   priceAt   Float    // Giá tại thời điểm mua
 }
 
+// ── Order Status Logs ───────────────────────────────────────────────────────
+model OrderStatusLog {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id])
+  status    String
+  note      String?
+  createdAt DateTime @default(now())
+  @@index([orderId])
+}
+
+// ── Wishlist ───────────────────────────────────────────────────────────────
+model Wishlist {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
+  @@unique([userId, productId])
+}
+
+// ── Product Reviews ─────────────────────────────────────────────────────────
 model Review {
   id        String   @id @default(cuid())
   userId    String
@@ -114,8 +267,10 @@ model Review {
   rating    Int      @default(5)
   comment   String?
   createdAt DateTime @default(now())
+  @@unique([userId, productId])
 }
 
+// ── Blog Articles ──────────────────────────────────────────────────────────
 model BlogArticle {
   id          String   @id @default(cuid())
   title       String
@@ -131,11 +286,15 @@ model BlogArticle {
   updatedAt   DateTime @updatedAt
 }
 
-model Voucher {
-  id          String   @id @default(cuid())
-  code        String   @unique
-  type        String   @default("PERCENT") // PERCENT or FIXED
-  value       Float
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
+// ── Notifications ───────────────────────────────────────────────────────────
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+  @@index([userId, isRead])
 }

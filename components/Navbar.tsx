@@ -17,6 +17,7 @@ export default function Navbar() {
     { href: "/consultation", label: "PHÒNG KHÁM" },
     { href: "/quiz", label: "🤖 BÁC SĨ AI (QUIZ)" },
     { href: "/blogs", label: "📖 TẠP CHÍ" },
+    { href: "/category/skincare", label: "📦 DANH MỤC" },
   ];
 
   return (
@@ -75,7 +76,7 @@ export default function Navbar() {
                           />
                           <div className="hidden md:flex flex-col text-left">
                              <span className="text-xs font-bold text-slate-800 line-clamp-1 w-20 leading-tight">{session.user?.name}</span>
-                             <span className="text-[10px] font-black text-rose-500 uppercase">{(session.user as any)?.role}</span>
+                             <span className="text-[10px] font-black text-rose-500 uppercase">{(session.user as { role?: string })?.role}</span>
                           </div>
                           <svg className="w-4 h-4 text-slate-400 group-hover:text-slate-800 transition-colors hidden md:block" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
                       </button>
@@ -83,13 +84,12 @@ export default function Navbar() {
                       {dropdownOpen && (
                           <div role="menu" className="absolute top-14 right-0 w-48 bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden flex flex-col py-2 animate-in fade-in slide-in-from-top-4">
                               <span className="px-4 py-2 text-[10px] uppercase font-bold text-slate-400 tracking-widest bg-slate-50 mb-1" role="menuitem">Thiết lập</span>
-                              {((session.user as any)?.role === "USER") && (
-                                 <Link onClick={()=>setDropdownOpen(false)} href="/portal/orders" role="menuitem" className="px-4 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">Lịch sử Đơn Hàng</Link>
-                              )}
-                              {((session.user as any)?.role === "ADMIN") && (
+                              <Link onClick={()=>setDropdownOpen(false)} href="/account" role="menuitem" className="px-4 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">Tài Khoản Của Tôi</Link>
+                              <Link onClick={()=>setDropdownOpen(false)} href="/account?tab=orders" role="menuitem" className="px-4 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">Lịch sử Đơn Hàng</Link>
+                              {(session.user && (session.user as { role?: string }).role === "ADMIN") && (
                                  <Link onClick={()=>setDropdownOpen(false)} href="/dashboard/admin/products" role="menuitem" className="px-4 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">Hầm Quản Trị</Link>
                               )}
-                              {((session.user as any)?.role === "DOCTOR") && (
+                              {(session.user && (session.user as { role?: string }).role === "DOCTOR") && (
                                  <Link onClick={()=>setDropdownOpen(false)} href="/dashboard/doctor" role="menuitem" className="px-4 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">Khu Vực Bác Sĩ</Link>
                               )}
                               <button
