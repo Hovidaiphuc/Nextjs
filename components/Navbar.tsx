@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useCartStore } from "@/app/store/cartStore";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 
 export default function Navbar() {
@@ -11,6 +11,26 @@ export default function Navbar() {
   const cart = useCartStore();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Sync local cart → server on login; merge server cart → local on login
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    if (cart.items.length > 0 && !cart._hasSynced) {
+      cart.syncToServer();
+    } else {
+      fetch("/api/cart")
+        .then(r => r.json())
+        .then(serverCart => {
+          if (serverCart?.items?.length > 0) {
+            cart.mergeFromServer(serverCart);
+          } else {
+            cart.setHasSynced(true);
+          }
+        })
+        .catch(() => cart.setHasSynced(true));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status]);
 
   const navLinks = [
     { href: "/products", label: "CỬA HÀNG" },

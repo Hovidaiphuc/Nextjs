@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import Image from "next/image";
+import ProductCard from "@/components/ProductCard";
 
 export default async function Home() {
   // SSR Lấy số liệu thật từ Cửa hàng
@@ -55,20 +56,7 @@ export default async function Home() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 {topProducts.map((p) => (
-                   <Link href={`/products/${p.id}`} key={p.id} className="group flex flex-col items-center text-center">
-                       <div className="relative w-full aspect-[4/5] rounded-3xl overflow-hidden bg-slate-100 mb-6 flex items-center justify-center p-8 group-hover:shadow-2xl transition-all duration-500">
-                           <div className="absolute inset-0 bg-gradient-to-t from-slate-900/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10"></div>
-                           {p.imageUrl ? (
-                               <Image src={p.imageUrl} alt={p.name} fill className="object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" />
-                           ) : (
-                               <div className="w-20 h-20 bg-slate-200 rounded-full animate-pulse"></div>
-                           )}
-                           <div className="absolute top-4 left-4 z-20 px-3 py-1 bg-white/90 backdrop-blur text-[10px] font-black uppercase tracking-widest text-slate-900 shadow-sm rounded-full">HOT</div>
-                       </div>
-                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 border-b border-rose-200">{p.category?.name}</span>
-                       <h3 className="text-xl font-bold text-slate-800 line-clamp-1 mb-2 group-hover:text-rose-500 transition-colors">{p.name}</h3>
-                       <div className="text-lg font-black text-slate-900">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.price)}</div>
-                   </Link>
+                   <ProductCard key={p.id} product={p} />
                 ))}
             </div>
          </div>

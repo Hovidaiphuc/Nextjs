@@ -34,7 +34,7 @@ export default function RootLayout({
          <Toaster position="bottom-right" reverseOrder={false} />
          <Providers>
             <Navbar />
-            <div className="flex-1 mt-20 md:mt-0">{children}</div>
+            <div className="flex-1">{children}</div>
             <BottomNav />
          </Providers>
       </body>

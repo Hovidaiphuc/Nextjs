@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import Image from "next/image";
+import ProductCard from "@/components/ProductCard";
 
 export default async function CategoryPage({
   params,
@@ -38,7 +38,7 @@ export default async function CategoryPage({
       orderBy: { price: sort === "asc" ? "asc" : "desc" },
       skip,
       take: limit,
-      include: { category: true }
+      include: { category: true, images: { orderBy: { isPrimary: "desc" } }, variants: { orderBy: { price: "asc" } } }
     }),
     prisma.product.count({ where })
   ]);
@@ -98,20 +98,7 @@ export default async function CategoryPage({
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {products.map(p => (
-                  <Link key={p.id} href={`/products/${p.id}`} className="group flex flex-col bg-white p-4 rounded-[2rem] hover:shadow-2xl transition-all border border-slate-100 hover:border-transparent">
-                    {p.stock === 0 && <div className="absolute top-4 left-4 z-10 bg-slate-900 text-white text-[10px] font-black uppercase px-2 py-1 rounded-full">HẾT HÀNG</div>}
-                    <div className="relative w-full aspect-square rounded-[1.5rem] overflow-hidden bg-slate-50 mb-4 flex items-center justify-center p-4 group-hover:-translate-y-1 transition-transform">
-                      {p.imageUrl ? <Image src={p.imageUrl} alt={p.name} fill className={`object-contain p-4 drop-shadow-xl transition-transform duration-500 ${p.stock === 0 ? 'grayscale opacity-50' : 'group-hover:scale-110'}`} /> : <div className="w-16 h-16 bg-slate-200 rounded-full"></div>}
-                    </div>
-                    <div className="flex flex-col flex-1 px-1">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-100 px-2 py-0.5 rounded w-fit mb-2">{p.brand || "Gia Tộc Cổ Ngoại"}</span>
-                      <h3 className={`text-sm font-bold line-clamp-2 mb-2 ${p.stock === 0 ? 'text-slate-400' : 'text-slate-800'}`}>{p.name}</h3>
-                      <div className="mt-auto pt-3 border-t border-slate-50 flex items-end justify-between">
-                        <span className={`text-lg font-black ${p.stock === 0 ? 'text-slate-400' : 'text-slate-900'}`}>{new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(p.price)}</span>
-                        {p.stock > 0 && p.stock <= 5 && <span className="text-[10px] font-black text-amber-500 bg-amber-50 px-2 py-1 rounded-full">Còn {p.stock}</span>}
-                      </div>
-                    </div>
-                  </Link>
+                  <ProductCard key={p.id} product={p} />
                 ))}
               </div>
 
