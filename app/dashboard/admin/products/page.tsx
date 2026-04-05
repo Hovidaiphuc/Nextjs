@@ -12,6 +12,7 @@ export default function AdminProductsPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [variantTab, setVariantTab] = useState(false);
+  const [galleryTab, setGalleryTab] = useState(false);
 
   // Form fields
   const [name, setName] = useState("");
@@ -30,6 +31,7 @@ export default function AdminProductsPage() {
   // Gallery
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [newGalleryImage, setNewGalleryImage] = useState("");
+  const [originalGalleryUrls, setOriginalGalleryUrls] = useState<string[]>([]);
 
   const fetchProducts = () => {
     fetch("/api/products")
@@ -57,10 +59,12 @@ export default function AdminProductsPage() {
     setBrand(p.brand || ""); setSkinType(p.skinType || ""); setIngredients(p.ingredients || ""); setStock(p.stock?.toString() || "0");
     setVariants(p.variants || []);
     setGalleryImages(p.images?.map((i: any) => i.url) || []);
+    setOriginalGalleryUrls(p.images?.map((i: any) => i.url) || []);
     // Fetch full product with variants
     const full = await fetch(`/api/products/${p.id}`).then(r => r.json());
     setVariants(full.variants || []);
     setGalleryImages(full.images?.map((i: any) => i.url) || []);
+    setOriginalGalleryUrls(full.images?.map((i: any) => i.url) || []);
     setEditingProduct(full);
     setIsFormOpen(true);
   };
@@ -73,21 +77,35 @@ export default function AdminProductsPage() {
     let productId = editingId;
     if (editingId) {
       await fetch(`/api/products/${editingId}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      // Sync gallery
+      await syncGallery(editingId);
+      // Update existing variants
+      for (const v of variants) {
+        if (v.id) {
+          await fetch(`/api/products/${editingId}/variants/${v.id}`, {
+            method: "PUT", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sku: v.sku, name: v.name, price: Number(v.price), stock: Number(v.stock), imageUrl: v.imageUrl })
+          }).catch(() => {});
+        }
+      }
     } else {
       const res = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       const data = await res.json();
       productId = data.id;
-    }
-
-    // Save variants
-    if (productId) {
-      for (const v of variants) {
-        if (v.id) {
-          // update via variant API
-        } else {
-          await fetch("/api/products/" + productId + "/variants", {
+      // Save new variants
+      if (productId) {
+        for (const v of variants) {
+          if (v.id) continue;
+          await fetch(`/api/products/${productId}/variants`, {
             method: "POST", headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ sku: v.sku, name: v.name, price: Number(v.price), stock: Number(v.stock), imageUrl: v.imageUrl })
+          }).catch(() => {});
+        }
+        // Save gallery images for new product
+        for (const url of galleryImages) {
+          await fetch(`/api/products/${productId}/images`, {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url, isPrimary: galleryImages.indexOf(url) === 0 })
           }).catch(() => {});
         }
       }
@@ -114,6 +132,24 @@ export default function AdminProductsPage() {
   };
 
   const removeGalleryImage = (idx: number) => setGalleryImages(prev => prev.filter((_, i) => i !== idx));
+
+  const syncGallery = async (productId: string) => {
+    // Add new images
+    const addedUrls = galleryImages.filter(url => !originalGalleryUrls.includes(url));
+    for (const url of addedUrls) {
+      await fetch(`/api/products/${productId}/images`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url, isPrimary: galleryImages.indexOf(url) === 0 })
+      }).catch(() => {});
+    }
+    // Remove deleted images
+    const removedUrls = originalGalleryUrls.filter(url => !galleryImages.includes(url));
+    for (const url of removedUrls) {
+      await fetch(`/api/products/${productId}/images?url=${encodeURIComponent(url)}`, {
+        method: "DELETE"
+      }).catch(() => {});
+    }
+  };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Sẽ xóa Vĩnh Viễn?")) return;
@@ -179,12 +215,13 @@ export default function AdminProductsPage() {
             {/* TABS */}
             {editingId && (
               <div className="flex gap-2 my-4">
-                <button onClick={() => setVariantTab(false)} className={`px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider ${!variantTab ? 'bg-slate-900 text-white' : 'bg-slate-700 text-slate-400'}`}>Thông Tin</button>
-                <button onClick={() => setVariantTab(true)} className={`px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider ${variantTab ? 'bg-slate-900 text-white' : 'bg-slate-700 text-slate-400'}`}>Biến Thể ({variants.length})</button>
+                <button onClick={() => { setVariantTab(false); setGalleryTab(false); }} className={`px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider ${!variantTab && !galleryTab ? 'bg-rose-600 text-white' : 'bg-slate-700 text-slate-400'}`}>Thông Tin</button>
+                <button onClick={() => { setVariantTab(true); setGalleryTab(false); }} className={`px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider ${variantTab && !galleryTab ? 'bg-rose-600 text-white' : 'bg-slate-700 text-slate-400'}`}>Biến Thể ({variants.length})</button>
+                <button onClick={() => { setVariantTab(false); setGalleryTab(true); }} className={`px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider ${galleryTab ? 'bg-rose-600 text-white' : 'bg-slate-700 text-slate-400'}`}>Hình Ảnh ({galleryImages.length})</button>
               </div>
             )}
 
-            {!variantTab ? (
+            {!variantTab && !galleryTab ? (
               <form onSubmit={handleSave} className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-2">Tên sản phẩm</label>
@@ -218,27 +255,12 @@ export default function AdminProductsPage() {
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-2">Mô Tả</label>
                   <textarea value={desc} onChange={r=>setDesc(r.target.value)} rows={3} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white focus:outline-none focus:border-rose-500"></textarea>
                 </div>
-                <div className="col-span-2">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-2">Bộ Sưu Tập Ảnh</label>
-                  <div className="flex gap-2 mb-2 flex-wrap">
-                    {galleryImages.map((url, i) => (
-                      <div key={i} className="relative group">
-                        <img src={url} alt="" className="w-16 h-16 rounded-xl object-cover border border-slate-600" />
-                        <button type="button" onClick={() => removeGalleryImage(i)} className="absolute -top-2 -right-2 w-5 h-5 bg-rose-500 text-white rounded-full text-[10px] font-black flex items-center justify-center">✕</button>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex gap-2">
-                    <input value={newGalleryImage} onChange={e=>setNewGalleryImage(e.target.value)} type="url" placeholder="URL ảnh..." className="flex-1 bg-slate-900 border border-slate-700 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-rose-500" />
-                    <button type="button" onClick={addGalleryImage} className="px-4 bg-slate-700 text-white font-bold text-xs rounded-xl hover:bg-slate-600">+ Ảnh</button>
-                  </div>
-                </div>
                 <div className="col-span-2 flex gap-4 mt-4">
                   <button type="submit" className="flex-1 bg-rose-600 hover:bg-rose-500 text-white font-black uppercase tracking-widest py-4 rounded-xl shadow-lg transition-all">{editingId ? "Lưu Thay Đổi" : "Tạo Sản Phẩm"}</button>
                   <button type="button" onClick={() => setIsFormOpen(false)} className="px-8 bg-slate-700 hover:bg-slate-600 text-white font-bold uppercase tracking-widest py-4 rounded-xl transition-all">Hủy</button>
                 </div>
               </form>
-            ) : (
+            ) : variantTab ? (
               <div>
                 {/* Variant List */}
                 {variants.length > 0 && (
@@ -293,7 +315,31 @@ export default function AdminProductsPage() {
 
                 <button onClick={() => setVariantTab(false)} className="mt-4 w-full py-3 bg-rose-600 hover:bg-rose-500 text-white font-black uppercase tracking-widest rounded-xl transition-colors shadow-lg">Lưu Biến Thể & Quay Lại</button>
               </div>
-            )}
+            ) : galleryTab ? (
+              <div>
+                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Bộ Sưu Tập Ảnh ({galleryImages.length})</h3>
+                <div className="flex gap-2 mb-4 flex-wrap">
+                  {galleryImages.map((url, i) => (
+                    <div key={i} className="relative group">
+                      <img src={url} alt="" className="w-20 h-20 rounded-xl object-cover border border-slate-600" />
+                      <button type="button" onClick={() => removeGalleryImage(i)} className="absolute -top-2 -right-2 w-5 h-5 bg-rose-500 text-white rounded-full text-[10px] font-black flex items-center justify-center">✕</button>
+                      {i === 0 && <span className="absolute bottom-1 left-1 text-[8px] bg-emerald-500 text-white px-1 rounded font-black">Chính</span>}
+                    </div>
+                  ))}
+                  {galleryImages.length === 0 && <p className="text-slate-500 text-sm italic">Chưa có ảnh nào.</p>}
+                </div>
+                <div className="flex gap-2 mb-6">
+                  <input value={newGalleryImage} onChange={e=>setNewGalleryImage(e.target.value)} type="url" placeholder="URL ảnh mới..." className="flex-1 bg-slate-900 border border-slate-700 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-rose-500" />
+                  <button type="button" onClick={addGalleryImage} className="px-5 bg-slate-700 text-white font-bold text-xs rounded-xl hover:bg-slate-600">+ Thêm</button>
+                </div>
+                <button type="button" onClick={async () => {
+                  if (!editingId) return;
+                  await syncGallery(editingId);
+                  toast.success("Hình ảnh đã lưu!");
+                }} className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black uppercase tracking-widest rounded-xl shadow-lg transition-colors">Lưu Hình Ảnh</button>
+                <button onClick={() => setGalleryTab(false)} className="mt-3 w-full py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold uppercase tracking-widest rounded-xl transition-colors">← Quay Lại</button>
+              </div>
+            ) : null}
           </div>
         </div>
       )}

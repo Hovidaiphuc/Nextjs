@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import AddressForm, { type AddressData } from "@/components/AddressForm";
 
 const SHIPPING_STANDARD = 30000;
 const SHIPPING_EXPRESS = 50000;
@@ -47,6 +48,7 @@ export default function CheckoutPage() {
   const [addrWard, setAddrWard] = useState("");
   const [addrDetail, setAddrDetail] = useState("");
   const [addrIsDefault, setAddrIsDefault] = useState(false);
+  const [addressFormData, setAddressFormData] = useState<Partial<AddressData>>({});
 
   // Shipping
   const [shippingMethod, setShippingMethod] = useState<"STANDARD" | "EXPRESS" | "FREE">("STANDARD");
@@ -162,6 +164,7 @@ export default function CheckoutPage() {
     setAddrProvince(addr.province); setAddrDistrict(addr.district);
     setAddrWard(addr.ward); setAddrDetail(addr.detail);
     setAddrIsDefault(addr.isDefault);
+    setAddressFormData({ name: addr.name, phone: addr.phone, province: addr.province, district: addr.district, ward: addr.ward, detail: addr.detail });
     setShowAddressForm(true);
   };
 
@@ -169,6 +172,7 @@ export default function CheckoutPage() {
     setShowAddressForm(false); setIsEditingAddress(false); setEditingAddressId(null);
     setAddrName(""); setAddrPhone(""); setAddrProvince(""); setAddrDistrict("");
     setAddrWard(""); setAddrDetail(""); setAddrIsDefault(false);
+    setAddressFormData({});
   };
 
   const handleCheckout = async (e: React.FormEvent) => {
@@ -305,41 +309,30 @@ export default function CheckoutPage() {
               </div>
             )}
 
-            {/* Address Form */}
+            {/* Address Form — Province/District/Ward dropdowns */}
             {showAddressForm && (
               <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
                 <h3 className="font-black text-slate-800 mb-4 text-sm uppercase tracking-widest">{isEditingAddress ? "Hiệu Chỉnh Địa Chỉ" : "Thêm Địa Chỉ Mới"}</h3>
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Tên người nhận</label>
-                    <input value={addrName} onChange={e=>setAddrName(e.target.value)} type="text" className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-rose-500" placeholder="Họ và tên" />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Số điện thoại</label>
-                    <input value={addrPhone} onChange={e=>setAddrPhone(e.target.value)} type="tel" className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-rose-500" placeholder="0xxx.xxx.xxx" />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Tỉnh / Thành phố</label>
-                    <input value={addrProvince} onChange={e=>setAddrProvince(e.target.value)} type="text" className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-rose-500" placeholder="TP.HCM" />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Quận / Huyện</label>
-                    <input value={addrDistrict} onChange={e=>setAddrDistrict(e.target.value)} type="text" className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-rose-500" placeholder="Quận 1" />
-                  </div>
-                  <div className="col-span-2">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Phường / Xã</label>
-                    <input value={addrWard} onChange={e=>setAddrWard(e.target.value)} type="text" className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-rose-500" placeholder="Phường Bến Nghé" />
-                  </div>
-                  <div className="col-span-2">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Địa chỉ chi tiết (số nhà, đường)</label>
-                    <input value={addrDetail} onChange={e=>setAddrDetail(e.target.value)} type="text" className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-rose-500" placeholder="123 Nguyễn Huệ, Tầng 5" />
-                  </div>
-                  <div className="col-span-2 flex items-center gap-2">
-                    <input type="checkbox" id="addrDefault" checked={addrIsDefault} onChange={e=>setAddrIsDefault(e.target.checked)} className="accent-rose-500" />
-                    <label htmlFor="addrDefault" className="text-xs font-bold text-slate-500">Đặt làm địa chỉ mặc định</label>
-                  </div>
+                <AddressForm
+                  value={addressFormData}
+                  onChange={(addr) => {
+                    setAddressFormData(addr);
+                    setAddrName(addr.name);
+                    setAddrPhone(addr.phone);
+                    setAddrProvince(addr.province);
+                    setAddrDistrict(addr.district);
+                    setAddrWard(addr.ward);
+                    setAddrDetail(addr.detail);
+                  }}
+                  compact
+                />
+                <div className="mt-4 flex items-center gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" checked={addrIsDefault} onChange={e => setAddrIsDefault(e.target.checked)} className="accent-rose-500" />
+                    <span className="text-xs font-bold text-slate-500">Đặt làm địa chỉ mặc định</span>
+                  </label>
                 </div>
-                <div className="flex gap-3">
+                <div className="mt-4 flex gap-3">
                   <button type="button" onClick={saveAddress} className="px-6 py-3 bg-slate-900 text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-rose-500 transition-colors">{isEditingAddress ? "Lưu Thay Đổi" : "Thêm Địa Chỉ"}</button>
                   <button type="button" onClick={resetAddressForm} className="px-6 py-3 bg-slate-100 text-slate-600 font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-slate-200 transition-colors">Hủy</button>
                 </div>

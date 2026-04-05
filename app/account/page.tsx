@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import Image from "next/image";
+import AddressForm, { type AddressData } from "@/components/AddressForm";
 
 type Tab = "profile" | "addresses" | "orders" | "wishlist" | "notifications";
 
@@ -115,7 +116,7 @@ function AddressesTab() {
   const [showForm, setShowForm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: "", phone: "", province: "", district: "", ward: "", detail: "", isDefault: false });
+  const [form, setForm] = useState<Partial<AddressData>>({});
 
   const load = () => {
     fetch("/api/addresses").then(r => r.json()).then(d => Array.isArray(d) ? setAddresses(d) : null);
@@ -139,11 +140,11 @@ function AddressesTab() {
   };
 
   const edit = (addr: any) => {
-    setForm({ name: addr.name, phone: addr.phone, province: addr.province, district: addr.district, ward: addr.ward, detail: addr.detail, isDefault: addr.isDefault });
+    setForm({ name: addr.name, phone: addr.phone, province: addr.province, district: addr.district, ward: addr.ward, detail: addr.detail });
     setEditId(addr.id); setIsEditing(true); setShowForm(true);
   };
 
-  const resetForm = () => { setShowForm(false); setIsEditing(false); setEditId(null); setForm({ name: "", phone: "", province: "", district: "", ward: "", detail: "", isDefault: false }); };
+  const resetForm = () => { setShowForm(false); setIsEditing(false); setEditId(null); setForm({}); };
 
   return (
     <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
@@ -155,19 +156,14 @@ function AddressesTab() {
       {showForm && (
         <div className="bg-slate-50 p-8 rounded-2xl border border-slate-200 mb-8">
           <h3 className="font-black text-slate-800 mb-4">{isEditing ? "Hiệu Chỉnh" : "Thêm Mới"}</h3>
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            {(["name", "phone", "province", "district", "ward", "detail"] as const).map(f => (
-              <div key={f} className={f === "detail" || f === "ward" ? "col-span-2 md:col-span-1" : ""}>
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">{f === "detail" ? "Địa chỉ chi tiết" : f.charAt(0).toUpperCase() + f.slice(1)}</label>
-                <input value={form[f]} onChange={e => setForm({ ...form, [f]: e.target.value })} type={f === "phone" ? "tel" : "text"} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-rose-500" />
-              </div>
-            ))}
-            <div className="col-span-2 flex items-center gap-2">
-              <input type="checkbox" id="isDefault" checked={form.isDefault} onChange={e => setForm({ ...form, isDefault: e.target.checked })} className="accent-rose-500" />
-              <label htmlFor="isDefault" className="text-xs font-bold text-slate-500">Đặt làm mặc định</label>
-            </div>
+          <AddressForm value={form} onChange={(addr) => setForm(addr)} compact />
+          <div className="mt-4 flex items-center gap-4">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" checked={!!form.isDefault} onChange={e => setForm({ ...form, isDefault: e.target.checked })} className="accent-rose-500" />
+              <span className="text-xs font-bold text-slate-500">Đặt làm mặc định</span>
+            </label>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-3 mt-4">
             <button onClick={save} className="px-6 py-3 bg-slate-900 text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-rose-500">{isEditing ? "Lưu" : "Thêm"}</button>
             <button onClick={resetForm} className="px-6 py-3 bg-slate-100 font-bold text-xs rounded-xl hover:bg-slate-200">Hủy</button>
           </div>

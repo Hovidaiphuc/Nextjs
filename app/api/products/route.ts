@@ -4,7 +4,11 @@ import { prisma } from '@/lib/prisma';
 export async function GET() {
   try {
     const products = await prisma.product.findMany({
-      include: { category: true },
+      include: {
+        category: true,
+        variants: { orderBy: { price: "asc" } },
+        images: { orderBy: { isPrimary: "desc" } }
+      },
     });
     return NextResponse.json(products);
   } catch (error) {

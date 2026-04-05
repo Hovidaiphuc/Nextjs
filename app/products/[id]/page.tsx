@@ -49,6 +49,7 @@ export default function ProductDetailPage() {
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
 
   useEffect(() => {
     if (!id) return;
@@ -60,6 +61,12 @@ export default function ProductDetailPage() {
         if (data.variants?.length > 0) setSelectedVariant(data.variants[0] as ProductVariant);
         addToRecentlyViewed(data);
         setRecentlyViewed(getRecentlyViewed().filter((p: RecentlyViewedProduct) => p.id !== id));
+        // Fetch related products
+        if (data.category?.id) {
+          fetch(`/api/products/related?categoryId=${data.category.id}&excludeId=${id}&limit=4`)
+            .then(r => r.json())
+            .then(related => { if (Array.isArray(related)) setRelatedProducts(related); });
+        }
       });
   }, [id]);
 
@@ -295,9 +302,39 @@ export default function ProductDetailPage() {
         {product.category && (
           <div className="mb-16">
             <h3 className="text-2xl font-black text-slate-800 mb-6">Sản Phẩm Cùng Viện</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* Fetch related via server component would be better, show placeholder */}
-            </div>
+            {relatedProducts.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {relatedProducts.map((rp: any) => (
+                  <Link key={rp.id} href={`/products/${rp.id}`} className="flex flex-col bg-white p-4 rounded-[2rem] hover:shadow-xl transition-all border border-slate-100 hover:border-transparent group">
+                    <div className="relative w-full aspect-square rounded-[1.5rem] overflow-hidden bg-slate-50 mb-4 flex items-center justify-center p-4 group-hover:-translate-y-1 transition-all duration-500">
+                      {rp.imageUrl || rp.images?.[0]?.url ? (
+                        <Image
+                          src={rp.imageUrl || rp.images[0].url}
+                          alt={rp.name}
+                          fill
+                          className="object-contain p-4 drop-shadow-xl transition-transform duration-700 group-hover:scale-110"
+                        />
+                      ) : (
+                        <div className="w-20 h-20 bg-slate-200 rounded-full" />
+                      )}
+                    </div>
+                    <div className="flex flex-col px-1 flex-1">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-100 px-2 py-0.5 rounded w-fit mb-2">{rp.brand || "Gia Toc Co Ngoai"}</span>
+                      <h4 className="text-base font-bold line-clamp-2 mb-2 text-slate-800 group-hover:text-rose-600 transition-colors">{rp.name}</h4>
+                      <div className="mt-auto pt-3 border-t border-slate-50">
+                        <div className="text-xl font-black text-slate-900">
+                          {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(rp.variants?.[0]?.price || rp.price)}
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 bg-white rounded-3xl border-2 border-dashed border-slate-100">
+                <p className="text-slate-400 font-bold text-sm">Không có sản phẩm cùng danh mục</p>
+              </div>
+            )}
           </div>
         )}
 

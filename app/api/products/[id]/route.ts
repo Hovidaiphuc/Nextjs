@@ -9,9 +9,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       where: { id },
       include: {
         category: true,
+        variants: { orderBy: { price: "asc" } },
+        images: { orderBy: { isPrimary: "desc" } },
         reviews: {
           include: { user: { select: { name: true } } },
-          orderBy: { createdAt: 'desc' }
+          orderBy: { createdAt: "desc" }
         }
       }
     });
@@ -39,19 +41,15 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   try {
     const session = await getServerSession() as any;
     if (session?.user?.role !== "ADMIN") return NextResponse.json({ error: "Thẩm quyền rỗng" }, { status: 403 });
-    
+
     const { id } = await params;
     const body = await req.json();
-    
-    // Ép kiểu stock tránh lỗi undefined Type
-    const dataToUpdate = { ...body };
-    if (body.stock !== undefined) {
-        dataToUpdate.stock = Number(body.stock);
-    }
-    
+    const dataToUpdate: Record<string, unknown> = { ...body };
+    if (body.stock !== undefined) dataToUpdate.stock = Number(body.stock);
+
     const product = await prisma.product.update({
-       where: { id },
-       data: dataToUpdate
+      where: { id },
+      data: dataToUpdate
     });
     return NextResponse.json(product);
   } catch (error) {
